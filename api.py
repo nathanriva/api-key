@@ -2,10 +2,10 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-@app.get('/')
+@app.get('/public')
 def public():
     return 'public'
 
-@app.get('/')
+@app.get('/private')
 def private():
-    return 'private'
+    return 'response'
