@@ -1,30 +1,19 @@
+from smtplib import bCRLF
 from conections import session
 from models import Users
+import bcrypt
 
 def CreateUser(newUser, newPassword):
-    newClient = Users(username=newUser, password=newPassword)
-    try:
-        session.add(newClient)
-        session.commit()
-        return 'se a agregado un nuevo usuario'
-    except:
-        return 'hubo un error'
+    hashPassword = bcrypt.hashpw(newPassword.encode('utf8'), bcrypt.gensalt(rounds=10))
+    newClient = Users(username=newUser, password=hashPassword.decode('utf8'))
+    session.add(newClient)
+    session.commit()
+    return 'se a agregado un nuevo usuario'
 
-
-    #Corroborar cliente
 def CheckUser(user, password):
     client = session.query(Users).filter(Users.username == user).first()
-
-    #VER 0.2
-    if (client is not None) and (password == client.password):
-        return 'pasas'
-    return 'usario o contraseña es incorrecto'  
-
-"""
-    #VER 0.1
-    if client is not None:
-        if client.password == password:
+    if (client is not None):
+        hashpwdclient = bcrypt.checkpw(password.encode('utf8'), client.password.encode('utf8'))
+        if (hashpwdclient):
             return 'pasas'
-        return 'la contraseña es incorrecta'
-    return 'el usuario no existe'
-"""         
+    return 'usario o contraseña es incorrecto'  
